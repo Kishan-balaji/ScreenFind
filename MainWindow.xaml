@@ -1,0 +1,13 @@
+﻿<Window x:Class="ScreenFind.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Label Content="Screen Resolution 450 x 800" VerticalAlignment="Center"></Label>
+        <Button x:Name="btnNewWindow" Content="Create New Window" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="150" Click="NewWindow"/>
+        <Button x:Name="btnFindSmallest" Content="Find Smallest Window" HorizontalAlignment="Left" Margin="10,50,0,0" VerticalAlignment="Top" Width="150" Click="FindSmallest"/>
+    </Grid>
+</Window>
