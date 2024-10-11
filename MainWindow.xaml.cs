@@ -36,17 +36,67 @@ namespace ScreenFind
             //    newWindow.Title = $"New Window (Width: {newWindow.ActualWidth}, Height: {newWindow.ActualHeight})";
             //};
             newWindow.Content = new Label { Content = $"Resoltuion: {width} x {height}", HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+            // MinimizeAllWindows();
             newWindow.Show();
+            MinimizeAllWindows();
         }
+
+        // private void FindSmallest(object sender, RoutedEventArgs e)
+        // {
+        //     Window? smallestWindow = Application.Current.Windows.Cast<Window>().Where(w => w != this).OrderBy(w => w.ActualWidth * w.ActualHeight).FirstOrDefault();
+        //     var otherWindows = Application.Current.Windows.Cast<Window>().Where(w => w != this).ToList();
+        //     if (otherWindows.Count == 0)
+        //     {
+        //         System.Windows.MessageBox.Show("No screens found", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+        //         return; 
+        //     }
+        //     foreach (Window window in Application.Current.Windows)
+        //     {
+        //         if (window != this && window != smallestWindow)
+        //         {
+        //             window.Hide();
+        //         }
+        //     }
+        // }
 
         private void FindSmallest(object sender, RoutedEventArgs e)
         {
-            Window? smallestWindow = Application.Current.Windows.Cast<Window>().Where(w => w != this).OrderBy(w => w.ActualWidth * w.ActualHeight).FirstOrDefault();
+        Window? smallestWindow = Application.Current.Windows.Cast<Window>()
+                                                        .Where(w => w != this)
+                                                        .OrderBy(w => w.ActualWidth * w.ActualHeight)
+                                                        .FirstOrDefault();
+        var otherWindows = Application.Current.Windows.Cast<Window>()
+                                                        .Where(w => w != this)
+                                                        .ToList();
+
+        if (otherWindows.Count == 0)
+        {
+            System.Windows.MessageBox.Show("No screens found", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+            return; 
+        }
+
+        foreach (Window window in otherWindows)
+        {
+            // if (window != this)
+            // {
+            // window.WindowState = WindowState.Minimized;
+            // }
+        }
+
+        // Bring forth the smallest window (if found)
+        if (smallestWindow != null)
+        {
+            smallestWindow.WindowState = WindowState.Normal;
+            smallestWindow.Activate();
+        }
+        }
+        private void MinimizeAllWindows()
+        {
             foreach (Window window in Application.Current.Windows)
             {
-                if (window != this && window != smallestWindow)
+                if (window != this)
                 {
-                    window.Hide();
+                    window.WindowState = WindowState.Minimized;
                 }
             }
         }
