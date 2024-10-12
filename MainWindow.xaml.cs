@@ -1,76 +1,47 @@
-﻿using System;
-// using System.Collections.Generic;
 using System.Linq;
-// using System.Text;
-// using System.Threading.Tasks;
 using System.Windows;
-// using System.Windows.Controls;
-// using System.Windows.Data;
-// using System.Windows.Documents;
-// using System.Windows.Input;
-// using System.Windows.Media;
-// using System.Windows.Media.Imaging;
-// using System.Windows.Navigation;
-// using System.Windows.Shapes;
-using System.Windows.Interop;
-using System.Windows.Forms;
+using System.Windows.Forms; 
 
 namespace ScreenTest
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
-    
     public partial class MainWindow : Window
     {
+        private Screen smallestScreen;
+        private Screen largestScreen;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            Screen[] screens = Screen.AllScreens;
+            smallestScreen = screens.OrderBy(s => s.Bounds.Width * s.Bounds.Height).First();
+            largestScreen = screens.OrderByDescending(s => s.Bounds.Width * s.Bounds.Height).First();
+            this.Loaded += MainWindow_Loaded;
         }
-    private const int SWP_NOZORDER = 0x0004;
-    private const int SWP_FRAMECHANGED = 0x0020;
-	private void OnWindowLoaded(object sender, RoutedEventArgs e)
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            OpenOnSmallestMonitor();
-	    this.WindowState = WindowState.Maximized;
+            SetWindowOnScreen(smallestScreen);
         }
 
-        
-        private void OpenOnSmallestMonitor()
+        private void SetWindowOnScreen(Screen screen)
         {
-            var smallestMonitor = Screen.AllScreens.OrderBy(s => s.Bounds.Width * s.Bounds.Height).FirstOrDefault();
-
-            if (smallestMonitor != null)
-            {
-                MoveToMonitor(smallestMonitor);
-            }
+            this.WindowState = WindowState.Normal;
+            this.Left = screen.Bounds.Left;
+            this.Top = screen.Bounds.Top;
+            this.Width = screen.Bounds.Width;
+            this.Height = screen.Bounds.Height;
+            this.WindowState = WindowState.Maximized;
         }
 
-        
-        private void MoveToLargestMonitor_Click(object sender, RoutedEventArgs e)
+        private void btnMoveSmallest_Click(object sender, RoutedEventArgs e)
         {
-            var largestMonitor = Screen.AllScreens.OrderByDescending(s => s.Bounds.Width * s.Bounds.Height).FirstOrDefault();
-
-            if (largestMonitor != null)
-            {
-                MoveToMonitor(largestMonitor);
-            }
+            SetWindowOnScreen(smallestScreen);
         }
 
-        private void MoveToSmallestMonitor_Click(object sender, RoutedEventArgs e)
+        private void btnMoveLargest_Click(object sender, RoutedEventArgs e)
         {
-            OpenOnSmallestMonitor(); 
+            SetWindowOnScreen(largestScreen);
         }
-        private void MoveToMonitor(Screen monitor)
-        {
-            var handle = new WindowInteropHelper(this).Handle;
-            var workingArea = monitor.WorkingArea;  
-            SetWindowPos(handle, IntPtr.Zero, workingArea.Left, workingArea.Top,workingArea.Width, workingArea.Height,SWP_NOZORDER | SWP_FRAMECHANGED);
-	    this.WindowState = WindowState.Maximized;
-        }
-
-        [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
-        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter,int X, int Y, int cx, int cy, uint uFlags);
-    
     }
 }
