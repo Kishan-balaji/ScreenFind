@@ -32,6 +32,7 @@ namespace ScreenTest
 	private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
             OpenOnSmallestMonitor();
+	    this.WindowState = WindowState.Maximized;
         }
 
         
@@ -65,6 +66,7 @@ namespace ScreenTest
             var handle = new WindowInteropHelper(this).Handle;
             var workingArea = monitor.WorkingArea;  
             SetWindowPos(handle, IntPtr.Zero, workingArea.Left, workingArea.Top,workingArea.Width, workingArea.Height,SWP_NOZORDER | SWP_FRAMECHANGED);
+	    this.WindowState = WindowState.Maximized;
         }
 
         [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
