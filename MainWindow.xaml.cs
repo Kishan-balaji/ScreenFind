@@ -1,109 +1,74 @@
-﻿using System.Text;
+﻿using System;
+// using System.Collections.Generic;
+using System.Linq;
+// using System.Text;
+// using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+// using System.Windows.Controls;
+// using System.Windows.Data;
+// using System.Windows.Documents;
+// using System.Windows.Input;
+// using System.Windows.Media;
+// using System.Windows.Media.Imaging;
+// using System.Windows.Navigation;
+// using System.Windows.Shapes;
+using System.Windows.Interop;
+using System.Windows.Forms;
 
-namespace ScreenFind
+namespace ScreenTest
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    
     public partial class MainWindow : Window
     {
         public MainWindow()
         {
             InitializeComponent();
         }
-        private void NewWindow(object sender, RoutedEventArgs e)
+    private const int SWP_NOZORDER = 0x0004;
+    private const int SWP_FRAMECHANGED = 0x0020;
+	private void OnWindowLoaded(object sender, RoutedEventArgs e)
         {
-            int width = int.Parse(PromptForInput("Enter window width:"));
-            int height = int.Parse(PromptForInput("Enter window height:"));
+            OpenOnSmallestMonitor();
+        }
 
-            var newWindow = new Window
+        
+        private void OpenOnSmallestMonitor()
+        {
+            var smallestMonitor = Screen.AllScreens.OrderBy(s => s.Bounds.Width * s.Bounds.Height).FirstOrDefault();
+
+            if (smallestMonitor != null)
             {
-                Width = width,
-                Height = height,
-                Title = $"New Window (Width: {width}, Height: {height})"
-            };
-            //newWindow.Loaded += (sender, args) =>
-            //{
-            //    newWindow.Title = $"New Window (Width: {newWindow.ActualWidth}, Height: {newWindow.ActualHeight})";
-            //};
-            newWindow.Content = new Label { Content = $"Resoltuion: {width} x {height}", HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
-            // MinimizeAllWindows();
-            newWindow.Show();
-            MinimizeAllWindows();
-        }
-
-        // private void FindSmallest(object sender, RoutedEventArgs e)
-        // {
-        //     Window? smallestWindow = Application.Current.Windows.Cast<Window>().Where(w => w != this).OrderBy(w => w.ActualWidth * w.ActualHeight).FirstOrDefault();
-        //     var otherWindows = Application.Current.Windows.Cast<Window>().Where(w => w != this).ToList();
-        //     if (otherWindows.Count == 0)
-        //     {
-        //         System.Windows.MessageBox.Show("No screens found", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
-        //         return; 
-        //     }
-        //     foreach (Window window in Application.Current.Windows)
-        //     {
-        //         if (window != this && window != smallestWindow)
-        //         {
-        //             window.Hide();
-        //         }
-        //     }
-        // }
-
-        private void FindSmallest(object sender, RoutedEventArgs e)
-        {
-        Window? smallestWindow = Application.Current.Windows.Cast<Window>()
-                                                        .Where(w => w != this)
-                                                        .OrderBy(w => w.ActualWidth * w.ActualHeight)
-                                                        .FirstOrDefault();
-        var otherWindows = Application.Current.Windows.Cast<Window>()
-                                                        .Where(w => w != this)
-                                                        .ToList();
-
-        if (otherWindows.Count == 0)
-        {
-            System.Windows.MessageBox.Show("No screens found", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
-            return; 
-        }
-
-        foreach (Window window in otherWindows)
-        {
-            // if (window != this)
-            // {
-            // window.WindowState = WindowState.Minimized;
-            // }
-        }
-
-        // Bring forth the smallest window (if found)
-        if (smallestWindow != null)
-        {
-            smallestWindow.WindowState = WindowState.Normal;
-            smallestWindow.Activate();
-        }
-        }
-        private void MinimizeAllWindows()
-        {
-            foreach (Window window in Application.Current.Windows)
-            {
-                if (window != this)
-                {
-                    window.WindowState = WindowState.Minimized;
-                }
+                MoveToMonitor(smallestMonitor);
             }
         }
 
-        private string PromptForInput(string message)
+        
+        private void MoveToLargestMonitor_Click(object sender, RoutedEventArgs e)
         {
-            return Microsoft.VisualBasic.Interaction.InputBox(message, "Input", "");
+            var largestMonitor = Screen.AllScreens.OrderByDescending(s => s.Bounds.Width * s.Bounds.Height).FirstOrDefault();
+
+            if (largestMonitor != null)
+            {
+                MoveToMonitor(largestMonitor);
+            }
         }
+
+        private void MoveToSmallestMonitor_Click(object sender, RoutedEventArgs e)
+        {
+            OpenOnSmallestMonitor(); 
+        }
+        private void MoveToMonitor(Screen monitor)
+        {
+            var handle = new WindowInteropHelper(this).Handle;
+            var workingArea = monitor.WorkingArea;  
+            SetWindowPos(handle, IntPtr.Zero, workingArea.Left, workingArea.Top,workingArea.Width, workingArea.Height,SWP_NOZORDER | SWP_FRAMECHANGED);
+        }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll", SetLastError = true)]
+        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter,int X, int Y, int cx, int cy, uint uFlags);
+    
     }
 }
